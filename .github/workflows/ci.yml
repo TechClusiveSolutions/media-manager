@@ -11,10 +11,6 @@ on:
     paths-ignore:
       - "docs/**"
       - "*.md"
-  # Manual dispatch only, to verify this workflow end-to-end before it has
-  # landed on `main`/`dev` (a `pull_request`/`push` trigger can't fire until
-  # then). Not part of docs/CI.md's designed trigger surface.
-  workflow_dispatch:
 
 jobs:
   lint:
