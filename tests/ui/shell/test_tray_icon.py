@@ -1,6 +1,9 @@
+import pytest
 import wx
 
 from ui.shell.tray_icon import TrayIcon
+
+pytestmark = pytest.mark.widget
 
 
 def test_restore_shows_raises_and_removes_icon(wx_app: wx.App) -> None:

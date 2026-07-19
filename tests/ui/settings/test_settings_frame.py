@@ -1,9 +1,12 @@
 from pathlib import Path
 
+import pytest
 import wx
 
 from services.config.config_store import ConfigStore
 from ui.settings.settings_frame import SettingsFrame
+
+pytestmark = pytest.mark.widget
 
 
 def _store(tmp_path: Path) -> ConfigStore:

@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, dev]
+    paths-ignore:
+      - "app/docs/**"
+      - "*.md"
+  push:
+    branches: [main, dev]
+    paths-ignore:
+      - "app/docs/**"
+      - "*.md"
+
+defaults:
+  run:
+    working-directory: app
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: ruff format --check
+        run: poetry run ruff format --check .
+      - name: ruff check
+        run: poetry run ruff check .
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: pyright (strict)
+        run: poetry run pyright
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      # Only the Ubuntu leg has a lightweight virtual-display mechanism
+      # (Xvfb) available, so it's the only leg that runs the widget-test
+      # subset and, consequently, the only leg with a structurally complete
+      # coverage number to gate on. See docs/CI.md §2 and docs/TESTING.md.
+      - name: Run full suite with coverage gate (Ubuntu, Xvfb)
+        if: runner.os == 'Linux'
+        uses: coactions/setup-xvfb@v1
+        with:
+          working-directory: app
+          run: poetry run pytest --cov=services --cov=ui --cov-report=term-missing --cov-fail-under=80
+
+      - name: Run non-widget test subset
+        if: runner.os != 'Linux'
+        run: poetry run pytest -m "not widget"
