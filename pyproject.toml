@@ -1,0 +1,49 @@
+[project]
+name = "mediman"
+version = "0.1.0"
+description = "Accessibility-first, cross-platform desktop client for managing multiple social media accounts across multiple platforms."
+authors = [{ name = "TechClusiveSolutions" }]
+license = "MIT"
+requires-python = ">=3.13,<3.15"
+readme = "README.md"
+dependencies = ["wxpython (>=4.2,<5.0)"]
+
+[tool.poetry]
+packages = [{ include = "services" }, { include = "ui" }]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3"
+pytest-cov = "^6.0"
+ruff = "^0.9"
+pyright = "^1.1"
+pre-commit = "^4.6.0"
+
+[tool.poetry.scripts]
+mediman = "ui.app:main"
+
+[build-system]
+requires = ["poetry-core>=2.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "strict"
+include = ["services", "ui", "tests"]
+# wxPython ships no type stubs (docs/IMPLEMENTATION.md §3's "Any" justification
+# applies project-wide to it), so member/stub-availability checks on it would
+# otherwise flag every widget call in `ui` rather than anything first-party.
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.report]
+fail_under = 80
