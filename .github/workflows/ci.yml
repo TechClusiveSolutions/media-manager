@@ -4,21 +4,13 @@ on:
   pull_request:
     branches: [main, dev]
     paths-ignore:
-      - "app/docs/**"
+      - "docs/**"
       - "*.md"
   push:
     branches: [main, dev]
     paths-ignore:
-      - "app/docs/**"
+      - "docs/**"
       - "*.md"
-  # Manual dispatch only, to verify this workflow end-to-end before it has
-  # landed on `main`/`dev` (a `pull_request`/`push` trigger can't fire until
-  # then). Not part of docs/CI.md's designed trigger surface.
-  workflow_dispatch:
-
-defaults:
-  run:
-    working-directory: app
 
 jobs:
   lint:
@@ -28,6 +20,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      - name: Install wxPython Linux build dependencies
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends
+          build-essential freeglut3-dev libgtk-3-dev libgstreamer1.0-dev
+          libgstreamer-plugins-base1.0-dev libnotify-dev libsdl2-dev libsm-dev
+          libwebkit2gtk-4.1-dev
       - name: Install Poetry
         run: pipx install poetry
       - name: Install dependencies
@@ -44,6 +41,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      - name: Install wxPython Linux build dependencies
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends
+          build-essential freeglut3-dev libgtk-3-dev libgstreamer1.0-dev
+          libgstreamer-plugins-base1.0-dev libnotify-dev libsdl2-dev libsm-dev
+          libwebkit2gtk-4.1-dev
       - name: Install Poetry
         run: pipx install poetry
       - name: Install dependencies
@@ -62,6 +64,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      - name: Install wxPython Linux build dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends
+          build-essential freeglut3-dev libgtk-3-dev libgstreamer1.0-dev
+          libgstreamer-plugins-base1.0-dev libnotify-dev libsdl2-dev libsm-dev
+          libwebkit2gtk-4.1-dev
       - name: Install Poetry
         run: pipx install poetry
       - name: Install dependencies
@@ -75,7 +83,6 @@ jobs:
         if: runner.os == 'Linux'
         uses: coactions/setup-xvfb@v1
         with:
-          working-directory: app
           run: poetry run pytest --cov=services --cov=ui --cov-report=term-missing --cov-fail-under=80
 
       - name: Run non-widget test subset
