@@ -18,7 +18,7 @@ class TrayIcon(wx.adv.TaskBarIcon):
         self._on_exit_callback: Callable[[], None] = on_exit
         # wx's stubs declare SetIcon(BitmapBundle), but wx.Icon is accepted at
         # runtime; this is a stub inaccuracy, not a real type mismatch.
-        self.SetIcon(wx.ArtProvider.GetIcon(wx.ART_INFORMATION), "Mediman")  # pyright: ignore[reportArgumentType]
+        self.SetIcon(wx.ArtProvider.GetIcon(wx.ART_INFORMATION), "MediMan")  # pyright: ignore[reportArgumentType]
         self.Bind(wx.adv.EVT_TASKBAR_LEFT_DCLICK, self._on_restore)
 
     def CreatePopupMenu(self) -> wx.Menu:  # noqa: N802 (wx API override)

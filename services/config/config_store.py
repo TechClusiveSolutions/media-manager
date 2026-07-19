@@ -49,8 +49,8 @@ class ConfigStore:
         self._data = json.loads(self._path.read_text(encoding="utf-8"))
 
     def _write(self) -> None:
+        self._path.parent.mkdir(parents=True, exist_ok=True)
         with self._advisory_write_lock():
-            self._path.parent.mkdir(parents=True, exist_ok=True)
             self._path.write_text(json.dumps(self._data, indent=2), encoding="utf-8")
 
     def _advisory_write_lock(self) -> "_AdvisoryWriteLock":

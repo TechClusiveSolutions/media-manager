@@ -18,6 +18,17 @@ def test_first_run_constructs_config_from_defaults(tmp_path: Path) -> None:
     assert on_disk["minimize_to_tray"] is defaults.MINIMIZE_TO_TRAY
 
 
+def test_first_run_creates_missing_parent_directory(tmp_path: Path) -> None:
+    # Regression test: a genuine first run has no ~/.mediman directory at
+    # all yet, not just no config file within an existing one.
+    config_path = tmp_path / "does" / "not" / "exist" / "config.json"
+
+    store = ConfigStore(config_path)
+
+    assert config_path.exists()
+    assert store.allow_multiple_instances is defaults.ALLOW_MULTIPLE_INSTANCES
+
+
 def test_existing_config_is_loaded_not_overwritten(tmp_path: Path) -> None:
     config_path = tmp_path / "config.json"
     config_path.write_text(

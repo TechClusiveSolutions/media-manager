@@ -21,6 +21,10 @@ class SettingsFrame(wx.Dialog):
         self.search_box = wx.SearchCtrl(self)
         self.search_box.SetName("Search settings")
 
+        self.autosave_notice = wx.StaticText(
+            self, label="Changes on this screen are saved automatically."
+        )
+
         self.category_list = wx.ListBox(self, choices=_CATEGORIES)
         self.category_list.SetSelection(0)
 
@@ -40,6 +44,7 @@ class SettingsFrame(wx.Dialog):
 
         root_sizer = wx.BoxSizer(wx.VERTICAL)
         root_sizer.Add(self.search_box, 0, wx.EXPAND | wx.ALL, 6)
+        root_sizer.Add(self.autosave_notice, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 6)
         root_sizer.Add(body_sizer, 1, wx.EXPAND)
         self.SetSizer(root_sizer)
 

@@ -27,6 +27,19 @@ def test_general_category_reflects_current_config(tmp_path: Path, wx_app: wx.App
         parent.Destroy()
 
 
+def test_autosave_notice_is_shown(tmp_path: Path, wx_app: wx.App) -> None:
+    store = _store(tmp_path)
+    parent = wx.Frame(None)
+    try:
+        dialog = SettingsFrame(parent, store)
+        try:
+            assert "automatically" in dialog.autosave_notice.GetLabel()
+        finally:
+            dialog.Destroy()
+    finally:
+        parent.Destroy()
+
+
 def test_toggling_checkbox_persists_to_config_store(tmp_path: Path, wx_app: wx.App) -> None:
     store = _store(tmp_path)
     parent = wx.Frame(None)

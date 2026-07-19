@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import cast
 
 import wx
 
@@ -63,15 +64,18 @@ def test_close_with_minimize_to_tray_enabled_hides_instead_of_shutting_down(
         frame.Destroy()
 
 
-def test_settings_menu_item_opens_and_closes_settings_dialog(
+def test_closing_settings_returns_focus_to_previously_focused_control(
     tmp_path: Path, wx_app: wx.App
 ) -> None:
     frame = MainFrame(_store(tmp_path))
     try:
+        frame.Show()
+        frame.navigation.add_account_button.SetFocus()
+
         wx.CallLater(10, _dismiss_topmost_dialog)
         frame._on_settings(wx.CommandEvent())  # pyright: ignore[reportPrivateUsage]
 
-        assert frame.HasFocus() or frame.FindFocus() is not None
+        assert wx.Window.FindFocus() is frame.navigation.add_account_button
     finally:
         frame.Destroy()
 
@@ -106,6 +110,62 @@ def test_exit_menu_item_forces_close(tmp_path: Path, wx_app: wx.App) -> None:
         frame._on_exit(wx.CommandEvent())  # pyright: ignore[reportPrivateUsage]
 
         assert shutdown_calls == [None]
+    finally:
+        frame.Destroy()
+
+
+def test_exit_menu_item_has_ctrl_q_accelerator(tmp_path: Path, wx_app: wx.App) -> None:
+    frame = MainFrame(_store(tmp_path))
+    try:
+        file_menu = frame.GetMenuBar().GetMenu(0)
+        exit_item = file_menu.FindItemByPosition(file_menu.GetMenuItemCount() - 1)
+
+        assert exit_item.GetItemLabel() == "Exit\tCtrl+Q"
+        accel = exit_item.GetAccel()
+        assert accel is not None
+        assert accel.GetKeyCode() == ord("Q")
+        assert accel.GetFlags() & wx.ACCEL_CTRL
+    finally:
+        frame.Destroy()
+
+
+def test_account_dependent_menu_items_disabled_with_no_accounts(
+    tmp_path: Path, wx_app: wx.App
+) -> None:
+    frame = MainFrame(_store(tmp_path))
+    try:
+        compose_menu = frame.GetMenuBar().GetMenu(1)
+        view_menu = frame.GetMenuBar().GetMenu(2)
+        account_menu = frame.GetMenuBar().GetMenu(3)
+        reconnect_item = account_menu.FindItemByPosition(account_menu.GetMenuItemCount() - 1)
+
+        assert all(
+            not item.IsEnabled() for item in cast("list[wx.MenuItem]", compose_menu.GetMenuItems())
+        )
+        assert all(
+            not item.IsEnabled() for item in cast("list[wx.MenuItem]", view_menu.GetMenuItems())
+        )
+        assert reconnect_item.IsEnabled() is False
+    finally:
+        frame.Destroy()
+
+
+def test_set_has_active_accounts_enables_account_dependent_menu_items(
+    tmp_path: Path, wx_app: wx.App
+) -> None:
+    frame = MainFrame(_store(tmp_path))
+    try:
+        frame.set_has_active_accounts(True)
+
+        compose_menu = frame.GetMenuBar().GetMenu(1)
+        assert all(
+            item.IsEnabled() for item in cast("list[wx.MenuItem]", compose_menu.GetMenuItems())
+        )
+
+        frame.set_has_active_accounts(False)
+        assert all(
+            not item.IsEnabled() for item in cast("list[wx.MenuItem]", compose_menu.GetMenuItems())
+        )
     finally:
         frame.Destroy()
 
