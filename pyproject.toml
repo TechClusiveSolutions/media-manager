@@ -44,6 +44,9 @@ reportUnknownMemberType = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "widget: instantiates real wx widgets; needs a display (Xvfb on the Ubuntu CI leg, see docs/CI.md).",
+]
 
 [tool.coverage.report]
 fail_under = 80

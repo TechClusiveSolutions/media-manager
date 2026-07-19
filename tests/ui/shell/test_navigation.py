@@ -1,6 +1,9 @@
+import pytest
 import wx
 
 from ui.shell.navigation import Navigation
+
+pytestmark = pytest.mark.widget
 
 
 def test_navigation_shows_empty_state_and_add_account_button(wx_app: wx.App) -> None:
