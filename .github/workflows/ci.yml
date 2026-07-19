@@ -4,21 +4,17 @@ on:
   pull_request:
     branches: [main, dev]
     paths-ignore:
-      - "app/docs/**"
+      - "docs/**"
       - "*.md"
   push:
     branches: [main, dev]
     paths-ignore:
-      - "app/docs/**"
+      - "docs/**"
       - "*.md"
   # Manual dispatch only, to verify this workflow end-to-end before it has
   # landed on `main`/`dev` (a `pull_request`/`push` trigger can't fire until
   # then). Not part of docs/CI.md's designed trigger surface.
   workflow_dispatch:
-
-defaults:
-  run:
-    working-directory: app
 
 jobs:
   lint:
@@ -75,7 +71,6 @@ jobs:
         if: runner.os == 'Linux'
         uses: coactions/setup-xvfb@v1
         with:
-          working-directory: app
           run: poetry run pytest --cov=services --cov=ui --cov-report=term-missing --cov-fail-under=80
 
       - name: Run non-widget test subset
